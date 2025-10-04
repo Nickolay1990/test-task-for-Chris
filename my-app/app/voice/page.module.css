@@ -1,0 +1,21 @@
+.block {
+    width: 185px;
+    height: 176px;
+}
+
+.page {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.centralBtn {
+    width: auto;
+    height: auto;
+    display: block;
+    padding: 0;
+    background-color: transparent;
+    border: 1px solid red;
+    border-radius: 50%;
+}
