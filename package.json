@@ -13,7 +13,9 @@
     "@lottiefiles/lottie-player": "^2.0.12",
     "next": "15.5.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-audio-visualize": "^1.2.0",
+    "react-dom": "19.1.0",
+    "wavesurfer.js": "^7.11.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
