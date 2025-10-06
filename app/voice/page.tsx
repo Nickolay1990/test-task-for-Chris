@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { DotLottieReact, DotLottie } from "@lottiefiles/dotlottie-react";
 import css from "./page.module.css";
+import Link from "next/link";
 
 const RecordPage = () => {
     const dotLottieRef = React.useRef<DotLottie | null>(null);
@@ -16,6 +17,35 @@ const RecordPage = () => {
     const dataArrayRef = useRef<Uint8Array | null>(null);
     const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
     const animationFrameRef = useRef<number | null>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+    const wsRef = useRef<WebSocket | null>(null);
+
+    useEffect(() => {
+        const ws = new WebSocket("ws://localhost:3000/stream");
+
+        ws.onopen = () => {
+            console.log("✅ WebSocket connected");
+        };
+
+        ws.onmessage = (e) => {
+            console.log("📩 Message from server:", e.data);
+        };
+
+        ws.onerror = (err) => {
+            console.error("❌ WebSocket error:", err);
+        };
+
+        ws.onclose = () => {
+            console.log("🔌 WebSocket disconnected");
+        };
+
+        wsRef.current = ws;
+
+        return () => {
+            ws.close();
+        };
+    }, []);
 
     const drawVisualizer = () => {
         if (!canvasRef.current || !analyserRef.current || !dataArrayRef.current) return;
@@ -80,6 +110,17 @@ const RecordPage = () => {
         analyserRef.current = audioContextRef.current.createAnalyser();
         analyserRef.current.fftSize = 2048;
 
+        const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+        mediaRecorderRef.current = mediaRecorder;
+
+        mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0 && wsRef.current?.readyState === WebSocket.OPEN) {
+                wsRef.current.send(e.data);
+            }
+        };
+
+        mediaRecorder.start(250);
+
         dataArrayRef.current = new Uint8Array(analyserRef.current.fftSize);
 
         sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
@@ -90,6 +131,7 @@ const RecordPage = () => {
 
     const stopMicrophone = () => {
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        mediaRecorderRef.current?.stop();
         audioContextRef.current?.close();
     };
 
@@ -114,6 +156,7 @@ const RecordPage = () => {
 
     return (
         <div className={css.page}>
+            <Link href="/">nw11111111111111111111111111</Link>
             <div className={css.block}>
                 <p className={css.text}>{isAnimation ? "End" : "Start"} a conversation with assistants</p>
 
